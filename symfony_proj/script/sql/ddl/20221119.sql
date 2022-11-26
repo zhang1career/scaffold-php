@@ -1,0 +1,11 @@
+CREATE DATABASE IF NOT EXISTS `app`;
+USE `app`;
+
+CREATE TABLE `user` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `name` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '名字' COLLATE 'utf8mb4_general_ci',
+    `created_tm` DATETIME NOT NULL DEFAULT '2000-01-01 00:00:00' COMMENT '创建时间',
+    `updated_tm` DATETIME NOT NULL DEFAULT '2000-01-01 00:00:00' COMMENT '修改时间',
+    `is_deleted` INT(11) NOT NULL DEFAULT '0' COMMENT '是否删除',
+    PRIMARY KEY (`id`) USING BTREE
+) COLLATE='utf8mb4_general_ci';
