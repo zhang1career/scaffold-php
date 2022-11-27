@@ -1,0 +1,107 @@
+version: "3.7"
+
+services:
+
+  nginx:
+    image: nginx:stable
+    container_name: nginx
+    restart: always
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:rw
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:rw
+      - ./var/nginx/log:/var/log/nginx:rw
+      - ./var/nginx/run:/var/run:rw
+      - .:/var/www/html/app:rw
+    networks:
+      backend_net:
+        ipv4_address: 172.50.0.10
+    ports:
+      - 8080:80
+      - 8443:443
+      - 8000:8000
+
+  php-fpm:
+    image: bitnami/php-fpm:8.0
+    container_name: php-fpm
+    restart: always
+    volumes:
+      - ./docker/php-fpm/php.ini:/usr/local/etc/php-fpm/php.ini:rw
+      - ./docker/php-fpm/php-fpm.conf:/usr/local/etc/php-fpm.conf:rw
+      - ./docker/php-fpm/php-fpm.d:/usr/local/etc/php-fpm.d:rw
+      - ./docker/php-fpm/extensions:/usr/local/lib/php/extensions:rw
+      - ./var/php-fpm/log:/usr/local/var/log:rw
+      - .:/var/www/html/app:rw
+    networks:
+      backend_net:
+        ipv4_address: 172.50.0.09
+    ports:
+      - 9000:9000
+
+  mysql:
+    image: mysql/mysql-server:5.7
+    container_name: mysql
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_HOST: 172.50.0.1
+      MYSQL_ROOT_PASSWORD: 123123
+      MYSQL_USER: zhangrj
+      MYSQL_PASSWORD: 123123
+      MYSQL_DATABASE: app
+    restart: unless-stopped
+    volumes:
+      - ./docker/mysql/mysqld.conf:/etc/my.cnf:rw
+      - ./var/mysql/var:/var/lib/mysql:rw
+      - ./var/mysql/log:/var/log:rw
+      - ./script/sql/ddl/20221119.sql:/docker-entrypoint-initdb.d/ddl.20221119.sql
+      - ./script/sql/dml/20221119.sql:/docker-entrypoint-initdb.d/dml.20221119.sql
+    networks:
+      backend_net:
+        ipv4_address: 172.50.0.101
+    ports:
+      - 3306:3306
+
+#  postgres:
+#    image: postgres:14.6
+#    container_name: postgres
+#    environment:
+#      POSTGRES_DB: app
+#      POSTGRES_USER: zhangrj
+#      POSTGRES_PASSWORD: 123123
+#    restart: unless-stopped
+#    volumes:
+#      - ./var/postgres/var:/var/lib/postgresql/data:rw
+#      - ./var/postgres/log:/var/log:rw
+#      - ./script/sql/ddl/20221119.sql:/docker-entrypoint-initdb.d/ddl.20221119.sql
+#    networks:
+#      backend_net:
+#        ipv4_address: 172.50.0.102
+#    ports:
+#      - 5432:5432
+
+  redis:
+    image: redis:5.0.12
+    container_name: redis
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - TZ=Asia/Shanghai
+    restart: unless-stopped
+    volumes:
+      - ./var/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf:rw
+      - ./var/redis/data:/data:rw
+      - ./var/redis/log:/var/log/redis:rw
+    networks:
+      backend_net:
+        ipv4_address: 172.50.0.120
+    ports:
+      - 6379:6379
+
+networks:
+  frontend_net:
+    driver: bridge
+  backend_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.50.0.0/24
+          gateway: 172.50.0.1
