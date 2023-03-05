@@ -1,8 +1,8 @@
 .DS_Store
 .idea
 
+opencart_proj/storage
 opencart_proj/var
 opencart_proj/web/image
-opencart_proj/web/system/storage
-
+opencart_proj/web/system/storage/vender
 
