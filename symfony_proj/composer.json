@@ -23,7 +23,8 @@
         "symfony/runtime": "5.4.*",
         "symfony/yaml": "5.4.*",
         "webonyx/graphql-php": "^14.11",
-      "ext-http": "*"
+      "ext-http": "*",
+      "ext-pdo": "*"
     },
     "require-dev": {
         "symfony/maker-bundle": "v1.48.*"
